@@ -1,0 +1,17 @@
+Ranked in order from worst to least worst
+
+VU#872545 (Adobe)
+VU#945216 (SSH)
+VU#624051 (RDP)
+VU#273371 (Novell)
+VU#985625 (CAB)
+
+All of these problems have a similar effect: they all allow the attacker to  execute arbitrary code and gain privileges that they shouldn't have.  I ranked this list in terms of how easy the exploit is and how important/common the various software is.
+
+Adobe shockwave is fairly widespread and is used by many people, so an exploit to that software could potentially have the largest effect.  The large user base would also lead to a large number of people trying to exploit the vulnerability.
+
+The SSH vulnerability I felt was also a major issue because of how important and used SSH is.  SSH is in itself a program for security, so for it to be insecure is a huge problem.  Also, being able to gain root privileges is a serious problem.
+
+I felt the Novell and CAB were the least potentially damaging vulnerabilities considering how specific one has to be in forming an attack.  These vulnerabilities can only be exploited with certain file types/names etc, so they are harder to use.
+
+Fortunately, all of these vulnerabilities have fixes in their updated versions/patches.  Only the Novell vulnerability doesn't have a patch, but one can restrict access to the program to only trusted users.  While this is something of a hassle, it is a quick and easy way to prevent attacks.

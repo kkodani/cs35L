@@ -1,0 +1,19 @@
+wget <address>
+
+tar -xzvf <.tar>
+
+./configure
+
+paste patch into patch.txt
+
+patch -p1 < patch.txt
+
+make
+
+test bug
+
+./ls -lt /tmp/wwi-armistice /tmp/now /tmp/now1
+
+run -lt /tmp/wwi-armistice /tmp/now /tmp/now1
+
+

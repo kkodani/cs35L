@@ -1,0 +1,23 @@
+1. use the -k option
+2. /usr/local/cs/bin/
+3. w: Show who is logged on and what they are doing
+   X: a portable, network-transparent window system
+4. When the clock jumps forward from 2 to 3, the command will be executed at
+3. When the clock jumps from 3 to 2, the command is executed the first time
+   clock strikes 2:30, but not the second.
+5. gcc
+6. g-s means that the group loses permission to "set-user-ID-on-execution
+   (when who contains or implies u) and set-group-ID-on-execution
+   (when who contains or implies g) bits" (from the chmod(1p) man page).
+7. locate
+8. -mtime -3 -type f
+9. only my home directory
+10. 17
+11. Richard M. Stallman and David MacKenzie
+12. libXcomposite.so.1.0.0
+13. whoami
+    whatis
+    which
+14. It deletes from the cursor to the next space or end of line.
+15. It gets arguments either from the command line,
+    or from the LC_* environment variables.

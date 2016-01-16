@@ -1,0 +1,6 @@
+#!/usr/local/cs/bin/bash
+
+set -x
+cmp -s $1 $2
+retval=$?
+echo $retval

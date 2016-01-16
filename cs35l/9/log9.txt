@@ -1,0 +1,116 @@
+od -An -f -N 800000 < /dev/urandom | tr -s '''\n' > nums
+generate the file of random floats
+
+tr ' ' '\n' < nums > nums2
+replace spaces with \n
+
+tr -s '\n' < nums2 > nums.txt
+remove all consecutive \n
+
+vim nums.txt
+check to make sure file has 200000 lines/numbers
+
+-------------------------------------------------
+TESTING SORT
+
+one thread
+time -p sort -g --parallel=1 nums.txt > /dev/null
+
+real 1.43
+user 1.41
+sys 0.00
+
+real 1.44
+user 1.42
+sys 0.00
+
+real 1.43
+user 1.42
+sys 0.00
+
+real 1.43
+user 1.42
+sys 0.00
+
+real 1.43
+user 1.42
+sys 0.00
+
+-------------------------------------------------
+two threads
+time -p sort -g --parallel=2 nums.txt > /dev/null
+
+real 1.17
+user 1.85
+sys 0.00
+
+real 0.80
+user 1.48
+sys 0.00
+
+real 0.77
+user 1.44
+sys 0.00
+
+real 0.81
+user 1.51
+sys 0.00
+
+real 0.77
+user 1.44
+sys 0.00
+
+-------------------------------------------------
+four threads
+time -p sort -g --parallel=4 nums.txt > /dev/null
+
+real 0.78
+user 1.46
+sys 0.00
+
+real 1.17
+user 1.87
+sys 0.00
+
+real 0.79
+user 1.46
+sys 0.01
+
+real 0.77
+user 1.44
+sys 0.00
+
+real 0.77
+user 1.44
+sys 0.00
+
+-------------------------------------------------
+eight threads
+time -p sort -g --parallel=8 nums.txt > /dev/null
+
+real 0.80
+user 1.47
+sys 0.00
+
+real 0.79
+user 1.47
+sys 0.00
+
+real 0.79
+user 1.46
+sys 0.00
+
+real 0.77
+user 1.45
+sys 0.00
+
+real 0.77
+user 1.44
+sys 0.00
+
+-------------------------------------------------
+
+CONCLUSION
+
+Having multiple threads seems to be faster than just having one.  However more
+than two threads doesn't seem to yield any significant increase in speed.

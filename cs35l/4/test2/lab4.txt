@@ -1,0 +1,65 @@
+git clone git://git.savannah.gnu.org/diffutils.git
+   -created a direcory called diffutils with a copy of the repository
+
+went into diffutils directory
+
+git log > git-log.txt -to generate the log of commits
+
+git tag > git-tags.txt -to generate a list of tags
+
+vim git-log.txt -go into the log
+
+search for maint: quote 'like this' or "like this", not `like this'
+commit # is: 62ca21c8c1a5aa3488589dcb191a4ef04ae9ed4f
+
+copy the commit number
+
+checkout commit number
+
+git show > quote-patch.txt -to generate patch
+
+checkout v3.0
+
+patch -p1 < quote-patch.txt -apply patch
+
+Errors:
+patching file src/diff.c
+Hunk #10 FAILED at 876.
+Hunk #11 FAILED at 906.
+Hunk #12 FAILED at 942.
+
+patching file src/diff3.c
+Hunk #6 FAILED at 433.
+
+These errors end up in the .rej files to be applied later
+
+git checkout HEAD <file> -this restores non .c files to pre patch state
+
+git diff
+
+more git checkout HEAD <file> for the files that don't
+change string constants
+
+vim <file> -to edit ' vs ` crossreference with git diff
+(change all ` to ' in non string constants (comments))
+
+vim src/diff.c.rej and src/diff3.c.rej files 
+-compare them to respective .c files and apply patch changes (more ` to ')
+
+git clean -f -removes untracked files
+
+git status -to check for six files
+
+git diff > quote-3.0-patch.txt -generate newest patch
+
+build process:
+./bootstrap
+./configure
+make
+make check
+
+testing:
+cd src
+./diff . -
+./diff --help
+both correctly use only ' character

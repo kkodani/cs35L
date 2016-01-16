@@ -1,0 +1,101 @@
+Download sthttpd
+
+put patch into patch.txt
+
+patch -p1 < patch.txt
+apply patch
+
+./configure
+
+change MakeFile (add -fno-stack-protector option, etc)
+
+make
+
+cd src/
+
+./thttpd -p 12345
+run thttpd on port 12345
+
+ps -aux | grep thttpd
+make sure no one else is using the same port
+also find process id for thttpd at port 12345 (PID)
+
+wget http://localhost:12345
+make sure it works normally
+
+run gdb
+
+attach PID
+set gdb to debug the web server
+
+from another terminal window:
+wget http://localhost:12345/AAAAAA....AAAA  (lots of A's)
+try to crash server
+
+in gdb:
+continue until crash
+backtrace (bt) after crash to look at the stack
+
+result of bt after crash
+
+(gdb) c
+Continuing.
+
+Program received signal SIGSEGV, Segmentation fault.
+0x000000361807958d in _int_malloc () from /lib64/libc.so.6
+
+(gdb) bt
+#0  0x000000361807958d in _int_malloc () from /lib64/libc.so.6
+#1  0x0000003618079dd6 in calloc () from /lib64/libc.so.6
+#2  0x000000361806e9dd in open_memstream () from /lib64/libc.so.6
+#3  0x00000036180e43ab in __vsyslog_chk () from /lib64/libc.so.6
+#4  0x000000361806ff3e in __libc_message () from /lib64/libc.so.6
+#5  0x0000003618075916 in malloc_printerr () from /lib64/libc.so.6
+#6  0x000000361807b317 in _int_realloc () from /lib64/libc.so.6
+#7  0x000000361807b4d5 in realloc () from /lib64/libc.so.6
+#8  0x0000000000406d89 in httpd_realloc_str (strP=strP@entry=0x1248b10,
+    maxsizeP=maxsizeP@entry=0x1248b18, size=<optimized out>) at libhttpd.c:715
+#9  0x0000000000405077 in handle_read (tvP=0x7fff18e425a0, c=0x7ff3ddec6010)
+    at thttpd.c:1596
+#10 main (argc=<optimized out>, argv=<optimized out>) at thttpd.c:802
+
+To exploit this server, you use enough A's so that you overflow the stack to
+the return address. Then you overwrite the return address to point to a spot
+on the stack where your code is.  Your code should be mixed in with all the
+dummy A's that fill up the stack.
+
+gcc -m32 -c -S -o thttpd-fno-stack-protector.s -fno-stack-protector -I . -I
+../ thttpd.c
+compile with -fno-stack-protector
+
+gcc -m32 -c -S -o thttpd.s -fstack-protector -I . -I
+../ thttpd.c
+compile without -fno-stack-protector
+
+The assembly file without stack protection seems more efficient because it is
+shorter, and it has less functions that are used.  The assembly file with
+protection needs functions and memory and time to protect the stack, making it
+less efficient, but more secure.
+
+diff thttpd-fno-stack-protector.s thttpd | grep
+call
+check for differences in function calls
+
+result:
+> 	call	__stack_chk_fail
+> 	call	__stack_chk_fail
+> 	call	__stack_chk_fail
+> 	call	__stack_chk_fail
+
+as we suspected, the assmbly file with protection has an extra function
+__stack_chk_fail
+
+gcc -m32 -c -S -o thttpd-fmudflap.s -fmudflap -I . -I ../
+thttpd.c
+compile with -fmudflap
+
+repeat the process of making a server and testing it in gdb.
+
+Again, the more secure option seems to be less efficient due to its
+complexity.  Using the -fmudflap option makes the code look less efficient.
+

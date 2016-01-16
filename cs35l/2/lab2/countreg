@@ -1,0 +1,87 @@
+#!/usr/local/cs/bin/bash
+
+
+dir=$1
+RESULT=`ls $dir`
+declare -a arr	
+let count=0;
+for FILE in $RESULT
+do
+    if [ -f "$dir/$FILE" ]
+    then
+        echo "$dir/$FILE is regular file"
+        arr[$count]="$dir$FILE";
+	let count=count+1;
+    fi
+done
+echo "There are $count regular files."
+echo ""
+echo ""
+
+
+beg=0
+let end=$count-1
+while [ $beg -lt $end ]
+do
+    let i=$beg+1
+    while [ $i -lt $count ]
+    do
+        echo ${arr[$beg]}
+        echo ${arr[$i]}
+        cmp -s ${arr[$beg]} ${arr[$i]}
+	retval=$?
+	if [ $retval -eq 0 ]
+	then
+	    s1=${arr[$beg]}
+	    s2=${arr[$i]}
+	    
+	    if [ ${#s1} -lt ${#s2} ]
+	    then
+		length=${#s1}
+	    else
+		length=${#s2}
+	    fi
+
+	    s1l=0
+	    s2l=0
+	    declare -a as1
+	    declare -a as2
+	    for c1 in $s1
+	    do
+		as1[$s1l]=$c1
+		let s1l=s1l+1
+	    done
+	    for c2 in $s2
+            do
+                as2[$s2l]=$c2
+                let s2l=s2l+1
+            done
+
+
+	    j=0
+	    while [ $j -lt $length ]
+	    do
+		echo "${as1[$j]}"
+		echo "${as2[$j]}"
+		if [ ${as1[$j]} -lt ${as2[$j]} ]
+		then
+		    ln -f ${arr[$beg]} ${arr[$i]}
+		    break
+		elif [ ${as2[$j]} -lt ${as1[$j]} ]
+		then
+		    ln -f ${arr[$i]} ${arr[$beg]}
+		    break
+		fi
+		let j=j+1
+	    done
+	    #ln -f ${arr[$beg]} ${arr[$i]}
+	    
+	else
+	    echo "these two are not the same"
+	fi
+        let i=i+1
+    done
+    let beg=beg+1
+done
+
+

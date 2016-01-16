@@ -1,0 +1,50 @@
+SERVER STUFF:
+
+sudo apt-get install openssh-server
+had to install openssh-server
+
+ssh -keygen
+hit enter 3 times (no password)
+generate keys for server
+
+sudo useradd –d /home/<username> –m <username> 
+create account for new client
+
+sudo passwd <username>
+set new account password=kfoxpw
+
+cd /home/<username>
+sudo mkdir .ssh
+make .ssh directory for new client
+
+sudo chown –R username .ssh
+change ownership for new client
+
+sudo chmod 700 .ssh
+change permissions for new client
+
+ifconfig
+find ip_address
+
+CLIENT STUFF:
+
+ssh-keygen
+enter 3 times (no password)
+create keys for client
+
+ssh-copy-id -i kfox@ip_address
+copy client's public key to server for authentication
+
+ssh-add
+add private key to authentication
+
+ssh -X kfox@ip_address
+connect to server
+
+firefox
+try and run a program on the server
+
+ON SERVER:
+
+ps -aux
+check processes to see if firefox is running

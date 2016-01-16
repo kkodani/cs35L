@@ -1,0 +1,65 @@
+sort /usr/share/dict/words > words
+wget address.html
+
+tr -c 'A-Za-z' '[\n*]' < assign2.txt
+	prints all sets of consecutive letters, with newlines
+replacing every non-letter (such as numbers or symbols)
+
+tr -cs 'A-Za-z' '[\n*]' < assign2.txt
+	does same as above except only prints one newline between each
+set of letters
+
+tr -cs 'A-Za-z' '[\n*]' <assign2.txt | sort
+	does same as above except puts all the letter sets in order of
+increasing ASCII value
+
+tr -cs 'A-Za-z' '[\n*]' < assign2.txt | sort -u | comm - words
+	takes all the words found in the above command and looks for them
+in the words file.  prints the words file with one word per line, and one
+indent per word.  any word that was found in assign2.txt and words gets 2
+indents, and word that was in assign2.txt but was not in words gets
+inserted at its proper location but with 0 indents.
+
+tr -cs 'A-Za-z' '[\n*]' < assign2.txt | sort -u | comm -23 - words
+	prints only words that are unique to assign2.txt
+
+buildwords script:
+#!/usr/local/cs/bin/bash
+
+sed '/<tr>/,/<\/td>/d' |
+grep -E "<td>.*</td>" |
+sed 's/<...>//g' |
+sed 's/<..>//g' |
+sed 's/<.>//g' |
+sed 's/<\/.*>//g' |
+sed 's/<.*>//g' |
+sed "s/\`/'/g" |
+sed 's/(.*)//g' |
+tr -cs "A-Za-z'" "[\n*]" |
+tr [:upper:] [:lower:] |
+tr -cs "[pk'mnwlhaeiou\n]" "Q" |
+sed "s/.*Q.*//g" |
+tr -cs "A-Za-z'" "[\n*]" |
+sort -u
+
+
+compare assign2.htm to words
+tr -cs "A-Za-z" "[\n*]" < assign2.htm | tr [:upper:] [:lower:] |
+sort -u | comm -23 - words
+38 words
+
+compare assign2.htm to hwords
+tr -cs "A-Za-z" "[\n*]" < assign2.htm | tr [:upper:] [:lower:] |
+sort -u | comm -23 - hwords
+409 words
+
+misspelled words in english but not in hawaiian 
+halau, iau, wiki
+
+misspelled words in hawaiian but not in english
+contains, web, share, and many, many more
+
+compare hwords to hwords
+tr -cs "A-Za-z'" "[\n*]" < hwords | tr [:upper:] [:lower:]
+| sort -u | comm -3 - hwords
+there is no output, meaning all words in hwords were found in hwords

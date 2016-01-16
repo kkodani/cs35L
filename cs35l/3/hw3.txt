@@ -1,0 +1,24 @@
+Q1: When the patch changed the default format from ISO
+to traditional unix, it removed the line goto case_long_iso_time_style;
+This line would gone to the line case_long_iso_time_style:
+and set the default to ISO.  but with the GOTO line removed,
+case_long_iso_time_style: was no longer necessary.
+
+Q2: Other locales could potentially have the same or different problems.
+Any script that was not in coreutils-7.6 (such as a user written one)
+but still uses the ls command has also been affected by the patch, and
+this may cause problems with those scripts.  The patch also doesn't
+account for other languages/cultures, where the names of the months
+and the ordering of the date may be entirely different.  The patch
+however, does account for other locales that may specify a date/time
+format, but if it is unspecified, it will default to the traditional
+unix format.
+
+Q3: Running the script on an empty file causes a IndexError: list
+index out of range.  This is because the script tries to choose a line
+to print, but there are no lines to choose from, not even an empty
+line, so there is no index for each line either.
+
+Q4: Running this script with python3 causes a syntax error on the line
+except IOError as (errno, strerror):  This syntax assumedly was valid
+in older versions of python but is not valid in python3.

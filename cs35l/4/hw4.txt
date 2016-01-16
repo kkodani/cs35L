@@ -1,0 +1,25 @@
+git checkout v3.0
+
+git checkout -b quote -make a new branch called quote
+
+patch -p1 < quote-3.0-patch.txt -apply patch from lab4
+
+vim ChangeLog-2008 -add section detailing changes made in the patch
+
+git add all .c files and ChangeLog-2008 -adds all files to a
+group that will be committed
+
+git commit -commits the group, write a commit message detailing changes
+
+git format-patch -1 --stdout > formatted-patch.txt -creates a patch that
+can be mailed
+
+git checkout v3.0
+
+git checkout -b tmp -make a new branch called tmp
+
+git am < formatted-patch.txt
+
+rebuild
+
+run tests again

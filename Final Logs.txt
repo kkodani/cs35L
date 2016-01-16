@@ -1,0 +1,457 @@
+sort /usr/share/dict/words > words
+wget address.html
+
+tr -c 'A-Za-z' '[\n*]' < assign2.txt
+	prints all sets of consecutive letters, with newlines
+replacing every non-letter (such as numbers or symbols)
+
+tr -cs 'A-Za-z' '[\n*]' < assign2.txt
+	does same as above except only prints one newline between each
+set of letters
+
+tr -cs 'A-Za-z' '[\n*]' <assign2.txt | sort
+	does same as above except puts all the letter sets in order of
+increasing ASCII value
+
+tr -cs 'A-Za-z' '[\n*]' < assign2.txt | sort -u | comm - words
+	takes all the words found in the above command and looks for them
+in the words file.  prints the words file with one word per line, and one
+indent per word.  any word that was found in assign2.txt and words gets 2
+indents, and word that was in assign2.txt but was not in words gets
+inserted at its proper location but with 0 indents.
+
+tr -cs 'A-Za-z' '[\n*]' < assign2.txt | sort -u | comm -23 - words
+	prints only words that are unique to assign2.txt
+
+compare assign2.htm to words
+tr -cs "A-Za-z" "[\n*]" < assign2.htm | tr [:upper:] [:lower:] |
+sort -u | comm -23 - words
+38 words
+
+compare assign2.htm to hwords
+tr -cs "A-Za-z" "[\n*]" < assign2.htm | tr [:upper:] [:lower:] |
+sort -u | comm -23 - hwords
+409 words
+
+misspelled words in english but not in hawaiian 
+halau, iau, wiki
+
+misspelled words in hawaiian but not in english
+contains, web, share, and many, many more
+
+compare hwords to hwords
+tr -cs "A-Za-z'" "[\n*]" < hwords | tr [:upper:] [:lower:]
+| sort -u | comm -3 - hwords
+there is no output, meaning all words in hwords were found in hwords
+
+---------
+
+Using wget, I grabbed the Coreutils 7.6 package.
+
+used tar to unzip the files contained in the package.
+
+made a new directory to install coreutils into.
+
+used the configure command with the prefix option toast up the install.
+	(prefix was the full path to the directory we want to install into)
+
+used make, and then make install to compile and install.
+
+went into the installed directory (coreutilsInstall/bin) and reproduced the
+bug using ./ls -l.
+
+copy and pasted the patch into patch_file, which i placed in coreutils-7.6/
+directory.
+
+ran the patch command patch -p1 < patch_file.
+	(the -p1 flag makes the directories in the patch match the directories
+for my
+coreutilsInstall/ directory)
+
+used make command to recompile.  make has to recursively check each file or
+directory
+in coreutils-7.6/ and recompile anything that was affected by the patch (such
+as ls.c).
+
+went into coreutils-7.6/src/ and used ./ls -l to confirm that the patch fixed
+the problem.
+
+Q1: When the patch changed the default format from ISO
+to traditional unix, it removed the line goto case_long_iso_time_style;
+This line would gone to the line case_long_iso_time_style:
+and set the default to ISO.  but with the GOTO line removed,
+case_long_iso_time_style: was no longer necessary.
+
+Q2: Other locales could potentially have the same or different problems.
+Any script that was not in coreutils-7.6 (such as a user written one)
+but still uses the ls command has also been affected by the patch, and
+this may cause problems with those scripts.  The patch also doesn't
+account for other languages/cultures, where the names of the months
+and the ordering of the date may be entirely different.  The patch
+however, does account for other locales that may specify a date/time
+format, but if it is unspecified, it will default to the traditional
+unix format.
+
+Q3: Running the script on an empty file causes a IndexError: list
+index out of range.  This is because the script tries to choose a line
+to print, but there are no lines to choose from, not even an empty
+line, so there is no index for each line either.
+
+Q4: Running this script with python3 causes a syntax error on the line
+except IOError as (errno, strerror):  This syntax assumedly was valid
+in older versions of python but is not valid in python3.
+
+------------------
+
+git clone git://git.savannah.gnu.org/diffutils.git
+   -created a direcory called diffutils with a copy of the repository
+
+went into diffutils directory
+
+git log > git-log.txt -to generate the log of commits
+
+git tag > git-tags.txt -to generate a list of tags
+
+vim git-log.txt -go into the log
+
+search for maint: quote 'like this' or "like this", not `like this'
+commit # is: 62ca21c8c1a5aa3488589dcb191a4ef04ae9ed4f
+
+copy the commit number
+
+checkout commit number
+
+git show > quote-patch.txt -to generate patch
+
+checkout v3.0
+
+patch -p1 < quote-patch.txt -apply patch
+
+Errors:
+patching file src/diff.c
+Hunk #10 FAILED at 876.
+Hunk #11 FAILED at 906.
+Hunk #12 FAILED at 942.
+
+patching file src/diff3.c
+Hunk #6 FAILED at 433.
+
+These errors end up in the .rej files to be applied later
+
+git checkout HEAD <file> -this restores non .c files to pre patch state
+
+git diff
+
+more git checkout HEAD <file> for the files that don't
+change string constants
+
+vim <file> -to edit ' vs ` crossreference with git diff
+(change all ` to ' in non string constants (comments))
+
+vim src/diff.c.rej and src/diff3.c.rej files 
+-compare them to respective .c files and apply patch changes (more ` to ')
+
+git clean -f -removes untracked files
+
+git status -to check for six files
+
+git diff > quote-3.0-patch.txt -generate newest patch
+
+build process:
+./bootstrap
+./configure
+make
+make check
+
+testing:
+cd src
+./diff . -
+./diff --help
+both correctly use only ' character
+
+git checkout v3.0
+
+git checkout -b quote -make a new branch called quote
+
+patch -p1 < quote-3.0-patch.txt -apply patch from lab4
+
+vim ChangeLog-2008 -add section detailing changes made in the patch
+
+git add all .c files and ChangeLog-2008 -adds all files to a
+group that will be committed
+
+git commit -commits the group, write a commit message detailing changes
+
+git format-patch -1 --stdout > formatted-patch.txt -creates a patch that
+can be mailed
+
+git checkout v3.0
+
+git checkout -b tmp -make a new branch called tmp
+
+git am < formatted-patch.txt
+
+rebuild
+
+run tests again
+
+----------------
+
+SERVER STUFF:
+
+sudo apt-get install openssh-server
+had to install openssh-server
+
+ssh -keygen
+hit enter 3 times (no password)
+generate keys for server
+
+sudo useradd ‚Äìd /home/<username> ‚Äìm <username> 
+create account for new client
+
+sudo passwd <username>
+set new account password=kfoxpw
+
+cd /home/<username>
+sudo mkdir .ssh
+make .ssh directory for new client
+
+sudo chown ‚ÄìR username .ssh
+change ownership for new client
+
+sudo chmod 700 .ssh
+change permissions for new client
+
+ifconfig
+find ip_address
+
+CLIENT STUFF:
+
+ssh-keygen
+enter 3 times (no password)
+create keys for client
+
+ssh-copy-id -i kfox@ip_address
+copy client's public key to server for authentication
+
+ssh-add
+add private key to authentication
+
+ssh -X kfox@ip_address
+connect to server
+
+firefox
+try and run a program on the server
+
+ON SERVER:
+
+ps -aux
+check processes to see if firefox is running
+
+1) If the passwords are encrypted, then it should still be fairly secure,
+though not totally.  If the passwords aren't encrypted, then the
+observer could just look at all the bytes that pass through and convert
+them to chars to find a password.  With a keylogger, this would be even
+easier since you had to type the password several times, and an observer
+could just look at the log and see that.  If booting with a USB, it is
+possible that the USB was compromised, and changes (such as backdoors
+or changes in security) were added to the USB files.
+
+2) The --verify option only confirms that the signatures match.
+You don't need to be the creator of a file to have the signature.
+To fix this, one could use public/private keys in combination with
+signatures to add another layer of security.
+
+---------------
+
+WRITING THE CODE
+
+For catb.c, I first had my end condtion set so the the program would
+end if getchar() found the NULL character.  This didn't work when
+using files instead of stdin and stdout, so I changed the condition
+to -1 (EOF).
+
+For catu.c, I originally had the buf argument as a char, when it was
+supposed to be a pointer to a char.  I also didn't know what my while
+loop condition should be, but after learning more about what read
+returns, I realized I could just use read > 0 as my condition.
+
+---------------------------------------
+
+RESULTS
+
+time -p ./catb < big
+
+strace -o strace_output ./catb < big
+strace file had 49217 lines
+
+---------------------------------------
+
+time -p ./catu < big
+
+strace -o strace_output2 ./catu < big
+strace file had 1918220 lines
+
+---------------------------------------
+
+time -p ./catb < big > ex
+
+strace -o strace_file2 ./catb < big > ex2
+strace file had 197 lines
+
+---------------------------------------
+
+time -p ./catu < big > ex2
+
+strace -o strace_file2 ./catu < big > ex2
+strace file was empty and I got the error: E72: Close error on swap file
+which means that the file was really, really big
+
+---------------------------------------
+
+CONLUSIONS:
+
+Using system calls is much slower than using the c functions.
+Writing to a file is slower using system calls than it is with c functions.
+
+---------------
+
+Download sthttpd
+
+put patch into patch.txt
+
+patch -p1 < patch.txt
+apply patch
+
+./configure
+
+change MakeFile (add -fno-stack-protector option, etc)
+
+make
+
+cd src/
+
+./thttpd -p 12345
+run thttpd on port 12345
+
+ps -aux | grep thttpd
+make sure no one else is using the same port
+also find process id for thttpd at port 12345 (PID)
+
+wget http://localhost:12345
+make sure it works normally
+
+run gdb
+
+attach PID
+set gdb to debug the web server
+
+from another terminal window:
+wget http://localhost:12345/AAAAAA....AAAA  (lots of A's)
+try to crash server
+
+in gdb:
+continue until crash
+backtrace (bt) after crash to look at the stack
+
+result of bt after crash
+
+(gdb) c
+Continuing.
+
+Program received signal SIGSEGV, Segmentation fault.
+0x000000361807958d in _int_malloc () from /lib64/libc.so.6
+
+(gdb) bt
+#0  0x000000361807958d in _int_malloc () from /lib64/libc.so.6
+#1  0x0000003618079dd6 in calloc () from /lib64/libc.so.6
+#2  0x000000361806e9dd in open_memstream () from /lib64/libc.so.6
+#3  0x00000036180e43ab in __vsyslog_chk () from /lib64/libc.so.6
+#4  0x000000361806ff3e in __libc_message () from /lib64/libc.so.6
+#5  0x0000003618075916 in malloc_printerr () from /lib64/libc.so.6
+#6  0x000000361807b317 in _int_realloc () from /lib64/libc.so.6
+#7  0x000000361807b4d5 in realloc () from /lib64/libc.so.6
+#8  0x0000000000406d89 in httpd_realloc_str (strP=strP@entry=0x1248b10,
+    maxsizeP=maxsizeP@entry=0x1248b18, size=<optimized out>) at libhttpd.c:715
+#9  0x0000000000405077 in handle_read (tvP=0x7fff18e425a0, c=0x7ff3ddec6010)
+    at thttpd.c:1596
+#10 main (argc=<optimized out>, argv=<optimized out>) at thttpd.c:802
+
+To exploit this server, you use enough A's so that you overflow the stack to
+the return address. Then you overwrite the return address to point to a spot
+on the stack where your code is.  Your code should be mixed in with all the
+dummy A's that fill up the stack.
+
+gcc -m32 -c -S -o thttpd-fno-stack-protector.s -fno-stack-protector -I . -I
+../ thttpd.c
+compile with -fno-stack-protector
+
+gcc -m32 -c -S -o thttpd.s -fstack-protector -I . -I
+../ thttpd.c
+compile without -fno-stack-protector
+
+The assembly file without stack protection seems more efficient because it is
+shorter, and it has less functions that are used.  The assembly file with
+protection needs functions and memory and time to protect the stack, making it
+less efficient, but more secure.
+
+diff thttpd-fno-stack-protector.s thttpd | grep
+call
+check for differences in function calls
+
+result:
+> 	call	__stack_chk_fail
+> 	call	__stack_chk_fail
+> 	call	__stack_chk_fail
+> 	call	__stack_chk_fail
+
+as we suspected, the assmbly file with protection has an extra function
+__stack_chk_fail
+
+gcc -m32 -c -S -o thttpd-fmudflap.s -fmudflap -I . -I ../
+thttpd.c
+compile with -fmudflap
+
+repeat the process of making a server and testing it in gdb.
+
+Again, the more secure option seems to be less efficient due to its
+complexity.  Using the -fmudflap option makes the code look less efficient.
+
+od -An -f -N 800000 < /dev/urandom | tr -s '''\n' > nums
+generate the file of random floats
+
+tr ' ' '\n' < nums > nums2
+replace spaces with \n
+
+tr -s '\n' < nums2 > nums.txt
+remove all consecutive \n
+
+vim nums.txt
+check to make sure file has 200000 lines/numbers
+
+-------------------------------------------------
+
+TESTING SORT
+
+one thread
+time -p sort -g --parallel=1 nums.txt > /dev/null
+
+-------------------------------------------------
+two threads
+time -p sort -g --parallel=2 nums.txt > /dev/null
+
+-------------------------------------------------
+four threads
+time -p sort -g --parallel=4 nums.txt > /dev/null
+
+-------------------------------------------------
+eight threads
+time -p sort -g --parallel=8 nums.txt > /dev/null
+
+-------------------------------------------------
+
+CONCLUSION
+
+Having multiple threads seems to be faster than just having one.  However more
+than two threads doesn't seem to yield any significant increase in speed.
+

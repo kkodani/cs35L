@@ -1,0 +1,97 @@
+WRITING THE CODE
+
+For catb.c, I first had my end condtion set so the the program would
+end if getchar() found the NULL character.  This didn't work when
+using files instead of stdin and stdout, so I changed the condition
+to -1 (EOF).
+
+For catu.c, I originally had the buf argument as a char, when it was
+supposed to be a pointer to a char.  I also didn't know what my while
+loop condition should be, but after learning more about what read
+returns, I realized I could just use read > 0 as my condition.
+
+---------------------------------------
+
+RESULTS
+
+time -p ./catb < big
+
+real 16.96
+user 0.14
+sys 0.08
+
+real 9.71
+user 0.15
+sys 0.07
+
+real 7.40
+user 0.14
+sys 0.08
+
+strace -o strace_output ./catb < big
+strace file had 49217 lines
+
+---------------------------------------
+
+time -p ./catu < big
+
+real 18.53
+user 0.27
+sys 7.25
+
+real 16.35
+user 0.26
+sys 5.88
+
+real 13.61
+user 0.25
+sys 6.89
+
+strace -o strace_output2 ./catu < big
+strace file had 1918220 lines
+
+---------------------------------------
+
+time -p ./catb < big > ex
+
+real	0m0.159s
+user	0m0.100s
+sys	0m0.007s
+
+real	0m0.171s
+user	0m0.114s
+sys	0m0.007s
+
+real	0m0.154s
+user	0m0.098s
+sys	0m0.008s
+
+strace -o strace_file2 ./catb < big > ex2
+strace file had 197 lines
+
+---------------------------------------
+
+time -p ./catu < big > ex2
+
+real 5.87
+user 0.26
+sys 5.53
+
+real 5.81
+user 0.28
+sys 5.46
+
+real 5.60
+user 0.21
+sys 5.32
+
+strace -o strace_file2 ./catu < big > ex2
+strace file was empty and I got the error: E72: Close error on swap file
+which means that the file was really, really big
+
+---------------------------------------
+
+CONLUSIONS:
+
+Using system calls is much slower than using the c functions.
+Writing to a file is slower using system calls than it is with c functions.

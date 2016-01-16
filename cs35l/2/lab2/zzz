@@ -1,0 +1,37 @@
+#!/usr/local/cs/bin/bash
+
+export LC_ALL='C'
+dir=$1
+RESULT=`ls -a $dir | sort -f`
+declare -a arr	
+let count=0;
+for FILE in $RESULT
+do
+    if [ -f "$dir/$FILE" ]
+    then
+	echo $FILE
+        arr[$count]="$dir$FILE";
+	let count=count+1;
+    fi
+done
+
+
+beg=0
+let end=$count-1
+while [ $beg -lt $end ]
+do
+    let i=$beg+1
+    while [ $i -lt $count ]
+    do
+        cmp -s ${arr[$beg]} ${arr[$i]}
+	retval=$?
+	if [ $retval -eq 0 ]
+	then
+	    ln -f ${arr[$beg]} ${arr[$i]}
+	fi
+        let i=i+1
+    done
+    let beg=beg+1
+done
+
+

@@ -1,0 +1,12 @@
+grep "<td>" blah.htm L sed 's/<u>\([^<]*\)\(<\/u>\)/\2 \1/g' file.txt
+
+sed 's/<td>\([^<]*/)<\/td> <td>\([^<]*\)<\/td>/\2/g' file.txt
+
+STDOUT - std::cout, printf
+STDIN - std::cin, scanf
+STDERR - std::cerr, fprintf(stderr, "")
+
+tr -d '\r\n' < assign2.html
+tr '[:upper:]' '[:lower:]'
+
+grep -En "<tr>.+</td>" temp1.txt

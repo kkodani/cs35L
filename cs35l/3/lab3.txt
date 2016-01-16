@@ -1,0 +1,29 @@
+Using wget, I grabbed the Coreutils 7.6 package.
+
+used tar to unzip the files contained in the package.
+
+made a new directory to install coreutils into.
+
+used the configure command with the prefix option toast up the install.
+	(prefix was the full path to the directory we want to install into)
+
+used make, and then make install to compile and install.
+
+went into the installed directory (coreutilsInstall/bin) and reproduced the
+bug using ./ls -l.
+
+copy and pasted the patch into patch_file, which i placed in coreutils-7.6/
+directory.
+
+ran the patch command patch -p1 < patch_file.
+	(the -p1 flag makes the directories in the patch match the directories
+for my
+coreutilsInstall/ directory)
+
+used make command to recompile.  make has to recursively check each file or
+directory
+in coreutils-7.6/ and recompile anything that was affected by the patch (such
+as ls.c).
+
+went into coreutils-7.6/src/ and used ./ls -l to confirm that the patch fixed
+the problem.

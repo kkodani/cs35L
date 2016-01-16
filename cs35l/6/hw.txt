@@ -1,0 +1,13 @@
+1) If the passwords are encrypted, then it should still be fairly secure,
+though not totally.  If the passwords aren't encrypted, then the
+observer could just look at all the bytes that pass through and convert
+them to chars to find a password.  With a keylogger, this would be even
+easier since you had to type the password several times, and an observer
+could just look at the log and see that.  If booting with a USB, it is
+possible that the USB was compromised, and changes (such as backdoors
+or changes in security) were added to the USB files.
+
+2) The --verify option only confirms that the signatures match.
+You don't need to be the creator of a file to have the signature.
+To fix this, one could use public/private keys in combination with
+signatures to add another layer of security.

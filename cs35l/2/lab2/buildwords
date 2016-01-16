@@ -1,0 +1,17 @@
+#!/usr/local/cs/bin/bash
+
+sed '/<tr>/,/<\/td>/d' |
+grep -E "<td>.*</td>" |
+sed 's/<...>//g' |
+sed 's/<..>//g' |
+sed 's/<.>//g' |
+sed 's/<\/.*>//g' |
+sed 's/<.*>//g' |
+sed "s/\`/'/g" |
+sed 's/(.*)//g' |
+tr -cs "A-Za-z'" "[\n*]" |
+tr [:upper:] [:lower:] |
+tr -cs "[pk'mnwlhaeiou\n]" "Q" |
+sed "s/.*Q.*//g" |
+tr -cs "A-Za-z'" "[\n*]" |
+sort -u 
